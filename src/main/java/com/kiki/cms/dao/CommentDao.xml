@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kiki.cms.dao.CommentDao">
+	<insert id="insertComment">
+		insert into cms_comment(user_id,article_id,content,created) value(#{userId},#{articleId},#{content},#{created})
+	</insert>
+	
+	<resultMap type="Comment" id="CommentMap">
+		<id column="id" property="id"/>
+		<result column="user_id" property="userId"/>
+		<result column="article_id" property="articleId"/>
+		<result column="content" property="content"/>
+		<result column="created" property="created"/>
+		<!-- 作者 -->
+		<association property="user" javaType="User" select="queryUserByUserId" column="user_id"></association>
+	</resultMap>
+	<select id="queryComments" resultMap="CommentMap">
+		select * from cms_comment where article_id=#{id}
+		order by created desc
+	</select>
+	
+	<select id="queryUserByUserId" resultType="User">
+		select * from cms_user where id=#{user_id}
+	</select>
+	
+	<select id="querycomCommentOrderByCommentNum" resultMap="CommentMap">
+		select user_id,count(*)as num from cms_comment as comment_num where
+ 		article_id=#{id} GROUP BY user_id ORDER BY num desc
+	</select>
+	
+	<insert id="updArticle">
+		update cms_article set comment_num = comment_num+1 where id=#{id}
+	</insert>
+</mapper>
